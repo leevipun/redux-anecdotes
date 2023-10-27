@@ -35,6 +35,9 @@ const reducer = (state = initialState, action, id) => {
       return state.map((anecdote) =>
         anecdote.id !== id ? anecdote : changedAnecdote
       );
+    case "NEW_ANECDOTE":
+      console.log("Päivitetään uuspaikalle");
+      return state.concat(action.payload);
     default:
       return state;
   }
