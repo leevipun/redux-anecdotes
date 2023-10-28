@@ -20,13 +20,13 @@ const asObject = (anecdote) => {
 const initialState = anecdotesAtStart.map(asObject);
 
 const reducer = (state = initialState, action, id) => {
-  let anecdoteToChange, changedAnecdote;
+  let anecdoteToChange, changedAnecdote, sorted;
   switch (action.type) {
     case "VOTE":
       console.log("päästiin tänne");
       console.log(action.type);
-      console.log(action.id);
-      id = action.id;
+      console.log(action.payload.id);
+      id = action.payload.id;
       anecdoteToChange = state.find((anecdote) => anecdote.id === id);
       changedAnecdote = {
         ...anecdoteToChange,
@@ -38,9 +38,28 @@ const reducer = (state = initialState, action, id) => {
     case "NEW_ANECDOTE":
       console.log("Päivitetään uuspaikalle");
       return state.concat(action.payload);
+    case "SORT":
+      console.log("sortataan");
+      sorted = state.sort((a, b) => b.votes - a.votes);
+      return sorted;
     default:
       return state;
   }
+};
+
+export const createAnecdote = (content) => {
+  return {
+    type: "NEW_ANECDOTE",
+    payload: { content, id: getId(), votes: 0 },
+  };
+};
+
+export const vote = (id) => {
+  console.log("vote", id);
+  return {
+    type: "VOTE",
+    payload: { id: id },
+  };
 };
 
 export default reducer;
