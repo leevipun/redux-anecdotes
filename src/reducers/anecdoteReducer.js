@@ -1,3 +1,5 @@
+import { createSlice } from "@reduxjs/toolkit";
+
 const anecdotesAtStart = [
   "If it hurts, do it more often",
   "Adding manpower to a late software project makes it later!",
@@ -19,47 +21,34 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject);
 
-const noteReducer = (state = initialState, action, id) => {
-  let anecdoteToChange, changedAnecdote, sorted;
-  switch (action.type) {
-    case "VOTE":
+const anecdoteSlice = createSlice({
+  name: "anecdotes",
+  initialState,
+  reducers: {
+    createAnecdote(state, action) {
+      const content = action.payload;
+      state.push({
+        content,
+        id: getId(),
+        votes: 0,
+      });
+    },
+    vote(state, action) {
       console.log("päästiin tänne");
       console.log(action.type);
-      console.log(action.payload.id);
-      id = action.payload.id;
-      anecdoteToChange = state.find((anecdote) => anecdote.id === id);
-      changedAnecdote = {
+      console.log(action.payload);
+      const id = action.payload;
+      const anecdoteToChange = state.find((anecdote) => anecdote.id === id);
+      const changedAnecdote = {
         ...anecdoteToChange,
         votes: anecdoteToChange.votes + 1,
       };
       return state.map((anecdote) =>
         anecdote.id !== id ? anecdote : changedAnecdote
       );
-    case "NEW_ANECDOTE":
-      console.log("Päivitetään uuspaikalle");
-      return state.concat(action.payload);
-    case "SORT":
-      console.log("sortataan");
-      sorted = state.sort((a, b) => b.votes - a.votes);
-      return sorted;
-    default:
-      return state;
-  }
-};
+    },
+  },
+});
 
-export const createAnecdote = (content) => {
-  return {
-    type: "NEW_ANECDOTE",
-    payload: { content, id: getId(), votes: 0 },
-  };
-};
-
-export const vote = (id) => {
-  console.log("vote", id);
-  return {
-    type: "VOTE",
-    payload: { id: id },
-  };
-};
-
-export default noteReducer;
+export const { createAnecdote, vote } = anecdoteSlice.actions;
+export default anecdoteSlice.reducer;
