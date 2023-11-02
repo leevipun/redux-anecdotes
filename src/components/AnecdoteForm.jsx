@@ -5,8 +5,10 @@ import { voteNotification } from "../reducers/notificationReducer";
 const AnecdoteForm = () => {
   const anecdotes = useSelector((state) => {
     const filter = state.filter.toLowerCase();
-    return state.anecdotes.filter((anecdote) =>
-      anecdote.content.toLowerCase().includes(filter)
+    return state.anecdotes.filter(
+      (anecdote) =>
+        typeof anecdote.content === "string" &&
+        anecdote.content.toLowerCase().includes(filter)
     );
   });
   const dispatch = useDispatch();
