@@ -9,7 +9,7 @@
     "lint": "eslint './**/*.{js,jsx}'",
     "preview": "vite preview",
     "server": "json-server -p3001 --watch db.json",
-    "test": "playwright test"
+    "test": "npm run server && playwright test"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.7",
