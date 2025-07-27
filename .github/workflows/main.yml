@@ -67,13 +67,6 @@ jobs:
                 CI: true
                 # Add any environment variables needed for tests
 
-            - name: Upload Playwright report
-              if: always()
-              uses: actions/upload-artifact@v3
-              with:
-                name: playwright-report
-                path: playwright-report/
-                retention-days: 30
     Tag_release:
         name: Tag Release
         needs: [Lint, Test]
@@ -123,10 +116,16 @@ jobs:
                 echo "status=failure" >> $GITHUB_OUTPUT
                 echo "color=15548997" >> $GITHUB_OUTPUT
                 echo "status_text=Failed" >> $GITHUB_OUTPUT
+                echo "title=💥 Build Failed! 💥" >> $GITHUB_OUTPUT
+                echo "description=Something went wrong with the build. Time to debug!" >> $GITHUB_OUTPUT
+                echo "image=https://media.giphy.com/media/EimNpKJpihLY4/giphy.gif" >> $GITHUB_OUTPUT
               else
                 echo "status=success" >> $GITHUB_OUTPUT
                 echo "color=5763719" >> $GITHUB_OUTPUT
                 echo "status_text=Success" >> $GITHUB_OUTPUT
+                echo "title=🚀 Build Succeeded! 🎉" >> $GITHUB_OUTPUT
+                echo "description=New version ${{ needs.Tag_release.outputs.tag }} deployed successfully! Changelog: ${{ needs.Tag_release.outputs.changelog }}" >> $GITHUB_OUTPUT
+                echo "image=https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnEzamQwZTl3Y3AyYzZxdWI2ZjdldTVhMnJzOG14OXYzODh6OGNiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lRjUMp4biswUpXfVUT/giphy.gif" >> $GITHUB_OUTPUT
               fi
 
           - name: Send Discord notification
@@ -135,4 +134,10 @@ jobs:
               webhook: ${{ secrets.DISCORD_WEBHOOK }}
               status: ${{ steps.status_check.outputs.status }}
               color: ${{ steps.status_check.outputs.color }}
-              username: "GitHub Actions"
+              username: "Redux Anecdotes Bot"
+              title: ${{ steps.status_check.outputs.title }}
+              description: ${{ steps.status_check.outputs.description }}
+              image: ${{ steps.status_check.outputs.image }}
+              thumbnail: "https://cdn.worldvectorlogo.com/logos/redux.svg"
+              url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              footer: "Commit by ${{ github.actor }} • ${{ github.event.head_commit.message }}"
