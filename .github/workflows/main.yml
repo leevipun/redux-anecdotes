@@ -40,22 +40,40 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Start server
-              run: npm run server
-        
-            - name: Start frontend
-              run: npm run dev 
-
-            - name: Wait for server to start
+            - name: Start JSON Server
+              run: npm run server & # Run in background
+              
+            - name: Start Vite dev server
               run: |
-                echo "Waiting for server to start..."
-                sleep 10 # Adjust the sleep time as needed
-            
-            - name: Install Playwright browsers
-              run: npx playwright install
+                npm run dev & # Run in background
+                echo "Waiting for dev server..."
+                # Wait for Vite server to be ready
+                while ! nc -z localhost 5173; do
+                  sleep 1
+                done
+                echo "Dev server is up!"
+                # Wait for JSON server to be ready
+                while ! nc -z localhost 3001; do
+                  sleep 1
+                done
+                echo "JSON server is up!"
 
-            - name: Run tests
+            - name: Install Playwright browsers
+              run: npx playwright install --with-deps
+
+            - name: Run Playwright tests
               run: npm run test
+              env:
+                CI: true
+                # Add any environment variables needed for tests
+
+            - name: Upload Playwright report
+              if: always()
+              uses: actions/upload-artifact@v3
+              with:
+                name: playwright-report
+                path: playwright-report/
+                retention-days: 30
     Tag_release:
         name: Tag Release
         needs: [Lint, Test]
@@ -90,7 +108,7 @@ jobs:
               run: echo "New tag is ${{ steps.tag_version.outputs.tag }}"
     Notification:
         runs-on: ubuntu-latest
-        needs: [Tag_release]
+        needs: [Tag_release, Lint, Test]
         if: |
           ${{ 
             always() && 
