@@ -112,7 +112,7 @@ jobs:
           - name: Determine Status
             id: status_check
             run: |
-              if [[ "${{ needs.Tag_release.result }}" == "failure" ]]; then
+              if [[ "${{ needs.Lint.result }}" == "failure" || "${{ needs.Test.result }}" == "failure" || "${{ needs.Tag_release.result }}" == "failure" ]]; then
                 echo "status=failure" >> $GITHUB_OUTPUT
                 echo "color=15548997" >> $GITHUB_OUTPUT
                 echo "status_text=Failed" >> $GITHUB_OUTPUT
